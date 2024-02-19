@@ -1,62 +1,55 @@
-CREATE TABLE Patient
+create table patient
 (
-p_id int AUTO_INCREMENT PRIMARY key,
-name varchar(35), 
-address varchar(35),
-gender varchar(10) 
+    patient_id int auto increment primary key,
+    name varchar(20) not null,
+    dob date not null,
+    gender varchar(10) not null,
+    email varchar(30) not null
 );
 
-CREATE TABLE doctor
+create table doctor
 (
-    name varchar(30),
-    doctor_id int primary key,
-    dept varchar(20)
+    doctor_id int auto increment primary key,
+    name varchar(20) not null,
+    dept varchar(20) not null
 );
 
-CREATE TABLE lab_report
+create table lab_report
 (
-    p_id int,
-    lab_no int primary key,
-    amount int,
-    doctor_id int,
-    report_date date,
-    foreign key (p_id) references Patient(p_id) on delete cascade
+    report_id int auto increment primary key,
+    patient_id int not null,
+    doctor_id int not null,
+    report_type varchar(20) not null,
+    fee float not null,
+    foreign key(patient_id) references patient(patient_id) on delete cascade,
+    foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
 );
 
-CREATE TABLE inpatient
+create table consultation
 (
-    room_no int ,
-    lab_no int,
-    p_id int primary key,
-    date_of_admit date,
-    date_of_discharge date,
-    foreign key (lab_no) references lab_report(lab_no) on delete cascade,
-    foreign key (p_id) references Patient(p_id) on delete cascade
+    consult_id int auto increment unique,
+    patient_id int not null,
+    doctor_id int not null,
+    consult_date datetime not null,
+    fees float not null,
+
+    primary key (patient_id, doctor_id, consult_date),
+
+    foreign key(patient_id) references patient(patient_id) on delete cascade,
+    foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
+
 );
 
-CREATE TABLE outpatient
+create table patient_report
 (
-    lab_no int,
-    p_id int primary key,
-    datee date,
-    foreign key (p_id) references Patient(p_id) on delete cascade,
-    foreign key (lab_no) references lab_report(lab_no) on delete cascade
-);
-
-CREATE TABLE rooms
-(
-    room_no int primary key,
-    room_type varchar (10),
-    status  varchar(20)
-);
-
-CREATE TABLE bills
-(
-    bill_no varchar(30) primary key,
-    p_id int,
-    no_of_days int,
-    medicine_charges int,
-    room_no int,
-    foreign key (p_id) references Patient(p_id) on delete cascade,
-    foreign key (room_no) references rooms (room_no) on delete cascade
+    consult_id int not null,
+    patient_id int not null,
+    doctor_id int not null,
+    report_id int not null,
+    doctor_msg varchar(20) not null,
+    medicine varchar(20) not null,
+     primary key (patient_id, doctor_id, consult_id),
+    foreign key(consult_id) references consultation(consult_id) on delete cascade,
+    foreign key(patient_id) references patient(patient_id) on delete cascade,
+    foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
 );
