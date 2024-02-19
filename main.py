@@ -2,20 +2,11 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-DB_URL = "mysql://root@localhost:3306/hospitaldb"
+from src.database import get_db_con
 
-import pymysql.cursors
-import pymysql
+program_state = {}
 
-def get_db_con():
-    # Connect to the database
-    connection = pymysql.connect(host='localhost',
-                user='root',
-                db='hospitaldb',
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor)
-    return connection
-
+program_state["is_login"] = True
 
 @app.route("/")
 def index():
@@ -35,4 +26,17 @@ def index():
     finally:
         connection.close()
 
-    return render_template("index.html", data1=data)
+    return render_template("index.html", program_data = program_state)
+
+
+@app.route("/signup")
+def signup_route():
+    return render_template("signup.html")
+
+@app.route("/login")
+def login_route():
+    return render_template("login.html")
+
+@app.route("/consult")
+def consult_route():
+    return render_template("consult.html",  program_data = program_state)
