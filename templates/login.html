@@ -7,15 +7,15 @@
     <title>hospital db</title>
   </head>
   <body>
-    <form action="">
+    <form action="{{ url_for('login_handle') }}" , method="post">
       <table>
         <tr>
           <th>Email</th>
-          <td><input type="email" name="" id="" /></td>
+          <td><input type="email" name="email" id="" /></td>
         </tr>
         <tr>
           <th>Date Of Birth</th>
-          <td><input type="date" name="" id="" /></td>
+          <td><input type="date" name="dob" id="" /></td>
         </tr>
       </table>
       <button type="submit">Login</button>

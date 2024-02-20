@@ -7,23 +7,23 @@
     <title>hospital db</title>
   </head>
   <body>
-    <form action="">
+    <form action="{{ url_for('signup_handle') }}" , method="post">
       <table>
         <tr>
           <th>Name</th>
-          <td><input type="text" name="" id="" /></td>
+          <td><input type="text" name="name" id="" /></td>
         </tr>
         <tr>
           <th>Date Of Birth</th>
-          <td><input type="date" name="" id="" /></td>
+          <td><input type="date" name="dob" id="" /></td>
         </tr>
         <tr>
           <th>Gender</th>
-          <td><input type="text" name="" id="" /></td>
+          <td><input type="text" name="gender" id="" /></td>
         </tr>
         <tr>
           <th>Email</th>
-          <td><input type="email" name="" id="" /></td>
+          <td><input type="email" name="email" id="" /></td>
         </tr>
       </table>
       <button type="submit">Signup</button>
