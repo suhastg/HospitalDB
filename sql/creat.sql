@@ -1,22 +1,24 @@
 create table patient
 (
-    patient_id int auto increment primary key,
+    patient_id int auto_increment primary key,
     name varchar(20) not null,
     dob date not null,
     gender varchar(10) not null,
-    email varchar(30) not null
+    email varchar(30) not null unique
 );
 
 create table doctor
 (
-    doctor_id int auto increment primary key,
+    doctor_id int auto_increment primary key,
     name varchar(20) not null,
-    dept varchar(20) not null
+    dept varchar(20) not null,
+    email varchar(30) not null unique,
+    dob date not null
 );
 
 create table lab_report
 (
-    report_id int auto increment primary key,
+    report_id int auto_increment primary key,
     patient_id int not null,
     doctor_id int not null,
     report_type varchar(20) not null,
@@ -27,7 +29,7 @@ create table lab_report
 
 create table consultation
 (
-    consult_id int auto increment unique,
+    consult_id int auto_increment unique,
     patient_id int not null,
     doctor_id int not null,
     consult_date datetime not null,
