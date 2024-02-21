@@ -51,6 +51,8 @@ def signup_handle():
             print(f"{Name=}, {Dob=}, {Gender=}, {Email=}")
             query='INSERT INTO `patient`( `name`, `dob`, `gender`, `email`) VALUES (%s,%s,%s, %s)'
             cursor.execute(query, (Name, Dob, Gender, Email))
+            connection.commit()
+
     finally:
         cursor.close()
 
@@ -99,3 +101,13 @@ def logout():
 @app.route("/consult")
 def consult_route():
     return render_template("consult.html",  program_data = program_state)
+
+
+@app.route("/lab_report")
+def lab_report_route():
+    Report_id=request.form['report_id']
+    Patient_id=request.form['patient_id']
+    Doctor_id=request.form['doctor_id']
+    Report_type=request.form['report_type']
+    Fee=request.form['fee']
+    
