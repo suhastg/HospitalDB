@@ -1,33 +1,34 @@
-from flask import Flask, render_template,  request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, make_response
 
 app = Flask(__name__)
 
 from src.database import get_db_con
+from src.models.lab_report import Lab_Report
 
-program_state = {}
+def get_cookie(request):
+    return request.cookies.get('login_cookie')
 
-program_state["is_login"] = False
+def extract_cookie_data(cookie):
+    cookie_data = {}
+
+    [id, name, user_type] = cookie.split(":")
+    cookie_data['id'] = id
+    cookie_data['name'] = name
+    cookie_data['user_type'] = user_type
+
+    return cookie_data
+
+def get_base_data(request):
+    cookie = get_cookie(request)
+    data = {'is_login': cookie != None}
+    print(f'{data=}')
+    return data
 
 @app.route("/")
 def index():
+    data = get_base_data(request)
 
-    connection = get_db_con()
-    result = []
-
-    data = {}
-
-    try: 
-        with connection.cursor() as cursor:
-            # Create a new record
-            query = "SELECT * FROM patient"
-            cursor.execute(query)
-            result = cursor.fetchall()
-            data["patients"] = result
-            # print(f"{result=}")
-    finally:
-        connection.close()
-
-    return render_template("index.html", program_data = program_state)
+    return render_template("index.html", program_data = data)
 
 
 @app.route("/signup")
@@ -74,7 +75,7 @@ def login_handle():
     result = []
     data = {}
 
-    try: 
+    try:
         with connection.cursor() as cursor:
             # Create a new record
             query = "SELECT * FROM `patient` where `email`=%s and `dob`=%s;"
@@ -88,26 +89,91 @@ def login_handle():
     if data["patients"] == None:
         return "login failed"
     
-    program_state["is_login"] = True
-    return redirect(url_for("index"))
+    response = make_response(redirect(url_for("index")))
+    response.set_cookie("login_cookie", f'{data["patients"]["patient_id"]}:{data["patients"]["email"]}:patient')
+    return response
+
+@app.route("/doctor_login")
+def doctor_login_route():
+    return render_template("doctor_login.html")
+
+@app.route("/doctor_login_handle", methods=["POST"])
+def doctor_login_handle():
+
+    Dob=request.form['dob']
+    Email=request.form['email']
+    print(Dob)
+    print(Email)
+
+    connection = get_db_con()
+    result = []
+    data = {}
+
+    try:
+        with connection.cursor() as cursor:
+            # Create a new record
+            query = "SELECT * FROM `doctor` where `email`=%s and `dob`=%s;"
+            cursor.execute(query, (Email, Dob))
+            result = cursor.fetchone()
+            data["doctor"] = result
+            print(f"{result=}")
+    finally:
+        connection.close()
+
+    if data["doctor"] == None:
+        return "login failed"
+    
+    response = make_response(redirect(url_for("index")))
+    response.set_cookie("login_cookie", f'{data["doctor"]["doctor_id"]}:{data["doctor"]["email"]}:doctor')
+    return response
 
 @app.route("/logout")
 def logout():
-    program_state["is_login"] = False
-    return redirect(url_for("index"))
+    response = make_response(redirect(url_for("index")))
+    response.set_cookie("login_cookie", '', expires=0)
 
-
+    return response
 
 @app.route("/consult")
 def consult_route():
-    return render_template("consult.html",  program_data = program_state)
+    data = get_base_data(request)
 
+    connection = get_db_con()
+    result = []
+
+    try:
+        with connection.cursor() as cursor:
+            # Create a new record
+            query = "SELECT * FROM `doctor`"
+            cursor.execute(query)
+            result = cursor.fetchall()
+            data["doctors"] = result
+            print(f"{result=}")
+    finally:
+        connection.close()
+
+    return render_template("consult.html",  program_data = data)
+
+
+@app.route("/consult_handle")
+def consult_handle():
+    data = get_base_data(request)
 
 @app.route("/lab_report")
 def lab_report_route():
-    Report_id=request.form['report_id']
-    Patient_id=request.form['patient_id']
-    Doctor_id=request.form['doctor_id']
-    Report_type=request.form['report_type']
-    Fee=request.form['fee']
-    
+    data = get_base_data(request)
+
+    connection = get_db_con()
+    result = []
+
+    try: 
+        with connection.cursor() as cursor:
+            # Create a new record
+            query = "SELECT * FROM `lab_report` where `patient_id` = %s;"
+            cursor.execute(query, (1))
+            result = cursor.fetchall()
+            data["lab_reports"] = result
+            print(f"{data=}")
+    finally:
+        connection.close()
+    return render_template("lab_report.html",  program_data = data)

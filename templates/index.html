@@ -1,36 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <title>hospital db</title>
-  </head>
-  <body>
-    <nav>
-      <div>
-        <a href="/"><h1>RNS Hospital</h1></a>
-      </div>
+{% extends 'template.html' %}
 
-      {% if program_data["is_login"] %}
-      <div>
-        <ul>
-          <li><a href="/labreport">labreport</a></li>
-          <li><a href="/report">report</a></li>
-          <li><a href="/consult">consult</a></li>
-          <li><a href="/logout">logout</a></li>
-        </ul>
-      </div>
-      {% else %}
-      <div>
-        <ul>
-          <li><a href="/signup">signup</a></li>
-        </ul>
-      </div>
-      {% endif %}
-    </nav>
-    <div>
-      <h1>RNS Hospital</h1>
-    </div>
-  </body>
-</html>
+{% block title %}
+index
+{% endblock %}
+
+
+{% block content %}
+<h1>RNS Hospital</h1>
+{% endblock %}

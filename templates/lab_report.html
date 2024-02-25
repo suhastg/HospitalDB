@@ -1,0 +1,32 @@
+{% extends 'template.html' %}
+
+{% block title %}
+lab report
+{% endblock %}
+
+
+{% block content %}
+<h1>Lab Report</h1>
+
+<table>
+    <tr>
+        <th>Report Id</th>
+        <th>Patient Id</th>
+        <th>Doctor Id</th>
+        <th>Report Type</th>
+        <th>Fee</th>
+    </tr>
+    {% for lab_report in program_data["lab_reports"] %}
+
+    <tr>
+        <td>{{lab_report.report_id}}</td>
+        <td>{{lab_report.patient_id}}</td>
+        <td>{{lab_report.doctor_id}}</td>
+        <td>{{lab_report.report_type}}</td>
+        <td>{{lab_report.fee}}</td>
+    </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}

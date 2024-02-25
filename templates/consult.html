@@ -1,52 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <title>hospital db</title>
-  </head>
-  <body>
-    <nav>
-      <div>
-        <a href="/"><h1>RNS Hospital</h1></a>
-      </div>
+{% extends 'template.html' %}
 
-      {% if program_data["is_login"] %}
-      <div>
-        <ul>
-          <li><a href="/labreport">labreport</a></li>
-          <li><a href="/report">report</a></li>
-          <li><a href="/consult">consult</a></li>
-          <li><a href="/logout">logout</a></li>
-        </ul>
-      </div>
-      {% else %}
-      <div>
-        <ul>
-          <li><a href="/signup">signup</a></li>
-        </ul>
-      </div>
-      {% endif %}
-    </nav>
-    <div>
-      <form action="">
-        <table>
-          <tr>
-            <th>Doctor name</th>
-            <td><input type="text" /></td>
-          </tr>
-          <tr>
-            <th>Dept name</th>
-            <td><input type="text" /></td>
-          </tr>
-          <tr>
-            <th>consult time</th>
-            <td><input type="datetime" /></td>
-          </tr>
-        </table>
-        <button type="submit">book</button>
-      </form>
-    </div>
-  </body>
-</html>
+{% block title %}
+consult
+{% endblock %}
+
+
+{% block content %}
+<form action="">
+  <table>
+    <tr>
+      <th>Doctor name</th>
+      <td>
+        <select>
+          <option value=""></option>
+          {% for doctor in program_data["doctors"] %}
+          <option value="{{doctor['doctor_id']}}">{{doctor['name']}} - {{doctor['dept']}}</option>
+          {% endfor %}
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>consult time</th>
+      <td><input type="datetime-local" /></td>
+    </tr>
+  </table>
+  <button type="submit">book</button>
+</form>
+{% endblock %}
