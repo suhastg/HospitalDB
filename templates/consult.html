@@ -6,12 +6,12 @@ consult
 
 
 {% block content %}
-<form action="">
+<form action="{{ url_for('consult_handle') }}" method="post">
   <table>
     <tr>
       <th>Doctor name</th>
       <td>
-        <select>
+        <select name="doctor">
           <option value=""></option>
           {% for doctor in program_data["doctors"] %}
           <option value="{{doctor['doctor_id']}}">{{doctor['name']}} - {{doctor['dept']}}</option>
@@ -20,8 +20,19 @@ consult
       </td>
     </tr>
     <tr>
+      <th>consult date</th>
+      <td><input type="date" name="consult_date" /></td>
+    </tr>
+    <tr>
       <th>consult time</th>
-      <td><input type="datetime-local" /></td>
+      <td>
+        <select name="consult_time">
+          <option value=""></option>
+          {% for consult_time in program_data["consult_timings"] %}
+          <option value="{{consult_time['cid']}}">{{consult_time['time']}}</option>
+          {% endfor %}
+        </select>
+      </td>
     </tr>
   </table>
   <button type="submit">book</button>
