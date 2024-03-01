@@ -208,20 +208,21 @@ def consult_handle():
     try:
         with connection.cursor() as cursor:
             query="""
-                SELECT COUNT(*) AS availability 
-                FROM `consultation` c 
-                WHERE c.`consult_date` = %s 
-                AND c.`doctor_id` = %s 
-                AND NOT EXISTS (
-                    SELECT 1 FROM `consultation` c2    
-                    WHERE c2.`consult_date` = %s    
-                    AND c2.`patient_id` =  %s
-                );
+                select count(*) as availability
+                where not EXISTS (
+                    select 1 from consultation c
+                    where c.consult_date = %s
+                    and c.doctor_id = %s
+                ) and not EXISTS (
+                    select 1 from consultation c
+                    where c.consult_date = %s
+                    and c.patient_id = %s
+                )
             """
             cursor.execute(query, (sql_dt, int(doctor_id), sql_dt, int(data["id"])))
             result = cursor.fetchall()
             print(f"{result=}")
-            if result[0]["availability"] == 10:
+            if result[0]["availability"] == 1:
                 q = "INSERT INTO `consultation`(`patient_id`, `doctor_id`, `consult_date`, `fees`) VALUES (%s,%s,%s,%s)"
                 cursor.execute(q,(data["id"],doctor_id,sql_dt,1000))
                 connection.commit()
