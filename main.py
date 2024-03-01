@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask import Flask, render_template, request, redirect, url_for, make_response, abort
 
 app = Flask(__name__)
 
@@ -31,27 +31,15 @@ def extract_cookie_data(cookie):
 
     return cookie_data
 
-def is_paitent(request):
-    cookie = get_cookie(request)
-    coookie_data = extract_cookie_data(cookie)
-
-    if coookie_data == None:
-        return None
-    
-    return coookie_data["user_type"] == "paitent"
-
-def is_doctor(request):
-    cookie = get_cookie(request)
-    coookie_data = extract_cookie_data(cookie)
-
-    if coookie_data == None:
-        return None
-    
-    return coookie_data["user_type"] == "doctor"
 
 def get_base_data(request):
     cookie = get_cookie(request)
-    data = {'is_login': cookie != None}
+    cookie_data = extract_cookie_data(cookie)
+
+    if cookie:
+        data = {'is_login': True, 'user_type': cookie_data['user_type']}
+    else:
+        data = {'is_login': False, 'user_type': None}
     print(f'{data=}')
     return data
 
@@ -63,6 +51,10 @@ def index():
 
     return render_template("index.html", program_data = data)
 
+
+@app.errorhandler(404)
+def wrong_turn_mate(request):
+    return render_template("404.html"), 404
 
 @app.route("/signup")
 def signup_route():
@@ -94,7 +86,8 @@ def signup_handle():
 
 @app.route("/login")
 def login_route():
-    return render_template("login.html")
+    data = get_base_data(request)
+    return render_template("login.html",  program_data = data)
 
 
 @app.route("/login_handle", methods=["POST"])
@@ -102,8 +95,6 @@ def login_handle():
 
     Dob=request.form['dob']
     Email=request.form['email']
-    print(Dob)
-    print(Email)
 
     connection = get_db_con()
     result = []
@@ -130,7 +121,8 @@ def login_handle():
 
 @app.route("/doctor_login")
 def doctor_login_route():
-    return render_template("doctor_login.html")
+    data = get_base_data(request)
+    return render_template("doctor_login.html",  program_data = data)
 
 
 @app.route("/doctor_login_handle", methods=["POST"])
@@ -138,8 +130,6 @@ def doctor_login_handle():
 
     Dob=request.form['dob']
     Email=request.form['email']
-    print(Dob)
-    print(Email)
 
     connection = get_db_con()
     result = []
@@ -173,10 +163,9 @@ def logout():
 @app.route("/consult")
 def consult_route():
     data = get_base_data(request)
-    is_by_paitent = is_paitent(request)
 
-    if is_by_paitent == None and is_by_paitent:
-        return "you took a wrong turn."
+    if data == None or data['user_type'] != 'paitent':
+        return abort(404)
 
     connection = get_db_con()
     result = []
@@ -219,8 +208,11 @@ def lab_report_route():
 
     try: 
         with connection.cursor() as cursor:
-            # Create a new record
-            query = "SELECT * FROM `lab_report` where `patient_id` = %s;"
+            if data["user_type"] == "paitent":
+                query = "SELECT * FROM `lab_report` where `patient_id` = %s;"
+            else:
+                query = "SELECT * FROM `lab_report` where `doctor_id` = %s;"
+            
             cursor.execute(query, (cookie_data["id"]))
             result = cursor.fetchall()
             data["lab_reports"] = result
