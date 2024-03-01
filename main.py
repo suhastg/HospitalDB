@@ -6,10 +6,18 @@ from src.database import get_db_con
 from src.models.lab_report import Lab_Report
 
 consult_timings = [
-    {"cid": 1, "time": "10:00 am"},
-    {"cid": 2, "time": "10:30 am"},
-    {"cid": 3, "time": "11:00 am"},
-    {"cid": 4, "time": "11:30 am"}
+    {"cid": 1, "time": "10:00 am", "sql_time": "10:00:00"},
+    {"cid": 2, "time": "10:30 am", "sql_time": "10:30:00"},
+    {"cid": 3, "time": "11:00 am", "sql_time": "11:00:00"},
+    {"cid": 4, "time": "11:30 am", "sql_time": "11:30:00"},
+    {"cid": 5, "time": "12:00 pm", "sql_time": "12:00:00"},
+    {"cid": 6, "time": "12:30 pm", "sql_time": "12:30:00"},
+    {"cid": 7, "time": "2:00 pm", "sql_time": "14:00:00"},
+    {"cid": 8, "time": "2:30 pm", "sql_time": "14:30:00"},
+    {"cid": 9, "time": "3:00 pm", "sql_time": "15:00:00"},
+    {"cid": 10, "time": "3:30 pm", "sql_time": "15:30:00"},
+    {"cid": 11, "time": "4:00 pm", "sql_time": "16:00:00"},
+    {"cid": 12, "time": "4:30 pm", "sql_time": "16:30:00"}
 ]
 
 
@@ -37,7 +45,7 @@ def get_base_data(request):
     cookie_data = extract_cookie_data(cookie)
 
     if cookie:
-        data = {'is_login': True, 'user_type': cookie_data['user_type']}
+        data = {'is_login': True, 'user_type': cookie_data['user_type'], "id": cookie_data["id"]}
     else:
         data = {'is_login': False, 'user_type': None}
     print(f'{data=}')
@@ -164,7 +172,8 @@ def logout():
 def consult_route():
     data = get_base_data(request)
 
-    if data == None or data['user_type'] != 'paitent':
+    if data == None or data['user_type'] != 'patient':
+        print(f'{data=}')
         return abort(404)
 
     connection = get_db_con()
@@ -187,15 +196,41 @@ def consult_route():
 @app.route("/consult_handle", methods=["POST"])
 def consult_handle():
     data = get_base_data(request)
-
+    connection = get_db_con()
     form = request.form
 
     [doctor_id, consult_date, consult_time] = [form.get('doctor'), form.get('consult_date'), form.get('consult_time')]
 
     print(f'{doctor_id=}, {consult_date=}, {consult_time=}')
+    sql_dt = f'{consult_date} {consult_timings[int(consult_time)-1]["sql_time"]}'
+    print(f'{sql_dt}')
+    
+    try:
+        with connection.cursor() as cursor:
+            query="""
+                SELECT COUNT(*) AS availability 
+                FROM `consultation` c 
+                WHERE c.`consult_date` = %s 
+                AND c.`doctor_id` = %s 
+                AND NOT EXISTS (
+                    SELECT 1 FROM `consultation` c2    
+                    WHERE c2.`consult_date` = %s    
+                    AND c2.`patient_id` =  %s
+                );
+            """
+            cursor.execute(query, (sql_dt, int(doctor_id), sql_dt, int(data["id"])))
+            result = cursor.fetchall()
+            print(f"{result=}")
+            if result[0]["availability"] == 10:
+                q = "INSERT INTO `consultation`(`patient_id`, `doctor_id`, `consult_date`, `fees`) VALUES (%s,%s,%s,%s)"
+                cursor.execute(q,(data["id"],doctor_id,sql_dt,1000))
+                connection.commit()
+            # print(f"{result=}")
+    finally:
+        connection.close()
 
     return redirect(url_for("index"))
-
+    
 
 @app.route("/lab_report")
 def lab_report_route():
