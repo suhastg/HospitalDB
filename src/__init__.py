@@ -142,9 +142,11 @@ def logout():
 
 @app.route("/consult")
 @login_mw
-@patient_only
 def consult_route():
     data = g.data
+
+    if g.data["user_type"] == "doctor":
+        return redirect(url_for("consultation"))
 
     connection = get_db_con()
     result = []
@@ -204,6 +206,28 @@ def consult_handle():
 
     return redirect(url_for("index"))
 
+@app.route("/consultation")
+@login_mw
+@doctor_only
+def consultation():
+    data = g.data
+
+    connection = get_db_con()
+    result = []
+
+    try:
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM `consultation` where `doctor_id` = %s"
+            cursor.execute(query, (g.data["id"]))
+            result = cursor.fetchall()
+    finally:
+        connection.close()
+
+    print(f"{result=}")
+    data["consultations"] = result
+    return render_template("consultation.html",  program_data = data)
+
+
 
 @app.route("/lab_report")
 @login_mw
@@ -213,7 +237,7 @@ def lab_report_route():
     connection = get_db_con()
     result = []
 
-    try: 
+    try:
         with connection.cursor() as cursor:
             if data["user_type"] == "paitent":
                 query = "SELECT * FROM `lab_report` where `patient_id` = %s;"
@@ -227,4 +251,13 @@ def lab_report_route():
     finally:
         connection.close()
     return render_template("lab_report.html",  program_data = data)
+
+
+@app.route("/generate_lab_report/<int:id>")
+@login_mw
+@doctor_only
+def generate_lab_report(id: int):
+    data = g.data
+
+    return f"{id=}"
 

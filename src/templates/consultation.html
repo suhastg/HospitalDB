@@ -1,0 +1,31 @@
+{% extends 'template.html' %}
+
+{% block title %}
+Consultation
+{% endblock %}
+
+
+{% block content %}
+<h1>Consultation</h1>
+
+<table class="table">
+    <tr>
+        <th>Consultation Id</th>
+        <th>Patient Id</th>
+        <th>Doctor Id</th>
+        <th>Attend</th>
+    </tr>
+    {% for consultation in program_data["consultations"] %}
+
+    <tr>
+        <td>{{consultation.consult_id}}</td>
+        <td>{{consultation.patient_id}}</td>
+        <td>{{consultation.doctor_id}}</td>
+        <td><a href="/generate_lab_report/{{consultation.consult_id}}"><button
+                    class="btn btn-primary">Attend</button></a></td>
+    </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}
