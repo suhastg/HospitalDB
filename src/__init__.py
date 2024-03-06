@@ -22,6 +22,13 @@ consult_timings = [
     {"cid": 12, "time": "4:30 pm", "sql_time": "16:30:00"}
 ]
 
+lab_report_types = [
+    {"rid": 1, "type": "Blood Test"},
+    {"rid": 2, "type": "Eye Test"},
+    {"rid": 3, "type": "Ear Test"},
+    {"rid": 4, "type": "Urine Test"}
+]
+
 
 @app.errorhandler(404)
 def wrong_turn_mate(request):
@@ -206,6 +213,7 @@ def consult_handle():
 
     return redirect(url_for("index"))
 
+
 @app.route("/consultation")
 @login_mw
 @doctor_only
@@ -217,15 +225,24 @@ def consultation():
 
     try:
         with connection.cursor() as cursor:
-            query = "SELECT * FROM `consultation` where `doctor_id` = %s"
-            cursor.execute(query, (g.data["id"]))
+            query = """
+                    SELECT c.consult_id, p.name, c.consult_date, c.fees
+                    FROM consultation c, patient p
+                    WHERE c.doctor_id = %s
+                    and c.patient_id = p.patient_id
+                    and consult_date>= now() and  c.consult_id not in (
+                        SELECT pr.consult_id from patient_report pr
+                        where pr.doctor_id = %s
+                    );
+                    """
+            cursor.execute(query, (g.data["id"], g.data["id"]))
             result = cursor.fetchall()
     finally:
         connection.close()
 
     print(f"{result=}")
     data["consultations"] = result
-    return render_template("consultation.html",  program_data = data)
+    return render_template("consultation.html", program_data = data)
 
 
 
@@ -258,6 +275,26 @@ def lab_report_route():
 @doctor_only
 def generate_lab_report(id: int):
     data = g.data
+    data["lab_report_types"] = lab_report_types
 
-    return f"{id=}"
+    connection = get_db_con()
+    result = []
+
+    try:
+        with connection.cursor() as cursor:
+            query = """
+                    SELECT c.consult_id, p.name, p.patient_id, doctor_id
+                    from `consultation` c, `patient` p
+                    where c.consult_id = %s
+                    and p.patient_id = c.patient_id
+                    """
+            cursor.execute(query, (id))
+            result = cursor.fetchall()
+            data["paitent_data"] = result[0]
+            print(f"{data=}")
+    finally:
+        connection.close()
+
+
+    return render_template("generate_lab_report.html", program_data = data)
 
