@@ -9,30 +9,34 @@ Consultation
 <h1>Consultation</h1>
 
 <div>
-    <table class="table">
-        <tr>
-            <th>Consultation Id</th>
-            <th>Patient Name</th>
-            <th>Consultation Date</th>
-            <th>Fees</th>
-            <th>Send To Lab</th>
-            <th>Attend</th>
-        </tr>
-        {% for consultation in program_data["consultations"] %}
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Consultation Id</th>
+                <th>Patient Name</th>
+                <th>Consultation Date</th>
+                <th>Fees</th>
+                <th>Send To Lab</th>
+                <th>Attend</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consultation in program_data["consultations"] %}
 
-        <tr>
-            <td>{{consultation.consult_id}}</td>
-            <td>{{consultation.name}}</td>
-            <td>{{consultation.consult_date}}</td>
-            <td>{{consultation.fees}}</td>
-            <td><a href="/generate_lab_report/{{consultation.consult_id}}"><button
-                        class="btn btn-primary">Lab</button></a>
-            </td>
-            <td><a href="/generate_lab_report/{{consultation.consult_id}}"><button
-                        class="btn btn-primary">Attend</button></a></td>
-        </tr>
+            <tr>
+                <td>{{consultation.consult_id}}</td>
+                <td>{{consultation.name}}</td>
+                <td>{{consultation.consult_date}}</td>
+                <td>{{consultation.fees}}</td>
+                <td><a href="/generate_lab_report/{{consultation.consult_id}}"><button
+                            class="btn btn-primary">Lab</button></a>
+                </td>
+                <td><a href="/generate_lab_report/{{consultation.consult_id}}"><button
+                            class="btn btn-primary">Attend</button></a></td>
+            </tr>
 
-        {% endfor %}
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 

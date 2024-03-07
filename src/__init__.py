@@ -204,8 +204,15 @@ def consult_handle():
             result = cursor.fetchall()
             print(f"{result=}")
             if result[0]["availability"] == 1:
+
+                query = "SELECT fees from `doctor` where doctor_id = %s"
+                cursor.execute(query, (doctor_id))
+                result = cursor.fetchone()
+                print(f"{result=}")
+                fee = result["fees"]
+
                 q = "INSERT INTO `consultation`(`patient_id`, `doctor_id`, `consult_date`, `fees`) VALUES (%s,%s,%s,%s)"
-                cursor.execute(q,(data["id"],doctor_id,sql_dt,1000))
+                cursor.execute(q,(data["id"],doctor_id,sql_dt,fee))
                 connection.commit()
             # print(f"{result=}")
     finally:
@@ -233,7 +240,8 @@ def consultation():
                     and consult_date>= now() and  c.consult_id not in (
                         SELECT pr.consult_id from patient_report pr
                         where pr.doctor_id = %s
-                    );
+                    )
+                    order by c.consult_date;
                     """
             cursor.execute(query, (g.data["id"], g.data["id"]))
             result = cursor.fetchall()
@@ -257,9 +265,29 @@ def lab_report_route():
     try:
         with connection.cursor() as cursor:
             if data["user_type"] == "paitent":
-                query = "SELECT * FROM `lab_report` where `patient_id` = %s;"
+                query = """
+                            SELECT lr.report_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
+                            FROM `lab_report` lr,
+                            `consultation` c,
+                            `patient` p,
+                            `doctor` d
+                            where lr.consult_id = c.consult_id
+                            and c.doctor_id = d.doctor_id
+                            and c.patient_id = p.patient_id
+                            and p.patient_id = %s;
+                        """
             else:
-                query = "SELECT * FROM `lab_report` where `doctor_id` = %s;"
+                query = """
+                            SELECT lr.report_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
+                            FROM `lab_report` lr,
+                            `consultation` c,
+                            `patient` p,
+                            `doctor` d
+                            where lr.consult_id = c.consult_id
+                            and c.doctor_id = d.doctor_id
+                            and c.patient_id = p.patient_id
+                            and d.doctor_id = %s;
+                        """
             
             cursor.execute(query, (g.cookie_data["id"]))
             result = cursor.fetchall()
@@ -298,3 +326,24 @@ def generate_lab_report(id: int):
 
     return render_template("generate_lab_report.html", program_data = data)
 
+
+@app.route("/handel_generate_lab_report", methods=["POST"])
+@login_mw
+def handel_generate_lab_report():
+    connection = get_db_con()
+    form = request.form
+
+    print(f"{form=}")
+    [patient_id, doctor_id, report_type, fee] = [form.get("patient_id"), form.get("doctor_id"), int(form.get("report")), float(form.get("fee"))]
+
+    print(f"{[patient_id, doctor_id, report_type, fee]=}")
+
+    try:
+        with connection.cursor() as cursor:
+            query = """INSERT INTO `lab_report`(`patient_id`, `doctor_id`, `report_type`, `fee`) VALUES (%s, %s, %s, %s)"""
+            cursor.execute(query, (patient_id, doctor_id, lab_report_types[report_type - 1]['type'], fee))
+            connection.commit()
+    finally:
+        connection.close()
+
+    return redirect(url_for("index"))

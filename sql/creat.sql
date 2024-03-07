@@ -13,18 +13,8 @@ create table doctor
     name varchar(20) not null,
     dept varchar(20) not null,
     email varchar(30) not null unique,
-    dob date not null
-);
-
-create table lab_report
-(
-    report_id int auto_increment primary key,
-    patient_id int not null,
-    doctor_id int not null,
-    report_type varchar(20) not null,
-    fee float not null,
-    foreign key(patient_id) references patient(patient_id) on delete cascade,
-    foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
+    dob date not null,
+    fees FLOAT NOT NULL default 1000.00
 );
 
 create table consultation
@@ -40,6 +30,15 @@ create table consultation
     foreign key(patient_id) references patient(patient_id) on delete cascade,
     foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
 
+);
+
+create table lab_report
+(
+    report_id int auto_increment primary key,
+    consult_id int not null,
+    report_type varchar(20) not null,
+    fee float not null,
+    foreign key(consult_id) references consultation(consult_id) on delete cascade
 );
 
 create table patient_report

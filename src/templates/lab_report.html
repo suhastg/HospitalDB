@@ -8,25 +8,27 @@ lab report
 {% block content %}
 <h1>Lab Report</h1>
 
-<table class="table">
-    <tr>
-        <th>Report Id</th>
-        <th>Patient Id</th>
-        <th>Doctor Id</th>
-        <th>Report Type</th>
-        <th>Fee</th>
-    </tr>
-    {% for lab_report in program_data["lab_reports"] %}
-
-    <tr>
-        <td>{{lab_report.report_id}}</td>
-        <td>{{lab_report.patient_id}}</td>
-        <td>{{lab_report.doctor_id}}</td>
-        <td>{{lab_report.report_type}}</td>
-        <td>{{lab_report.fee}}</td>
-    </tr>
-
-    {% endfor %}
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Report Id</th>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th>Report Type</th>
+            <th>Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lab_report in program_data["lab_reports"] %}
+        <tr>
+            <td>{{lab_report.report_id}}</td>
+            <td>{{lab_report.p_name}}</td>
+            <td>{{lab_report.d_name}}</td>
+            <td>{{lab_report.report_type}}</td>
+            <td>{{lab_report.fee}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 {% endblock %}
