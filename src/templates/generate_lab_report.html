@@ -12,7 +12,7 @@ Gen Lab Report
     <form action="{{url_for('handel_generate_lab_report')}}" , method="post">
         <table class="table">
             <tr>
-                <th>Consult id</th>
+                <th>Consult ID</th>
                 <td><input type="text" readonly name="consult_id"
                         value="{{program_data['paitent_data']['consult_id']}}"></td>
             </tr>
@@ -22,7 +22,7 @@ Gen Lab Report
             </tr>
             <tr>
                 <th>Report</th>
-                <td><select name="report">
+                <td><select required name="report">
                         <option value=""></option>
                         {% for report_type in program_data["lab_report_types"] %}
                         <option value="{{report_type['rid']}}">{{report_type["type"]}}</option>
@@ -31,7 +31,7 @@ Gen Lab Report
             </tr>
             <tr>
                 <th>Fee</th>
-                <td><input type="number" name="fee"></td>
+                <td><input required type="number" name="fee"></td>
             </tr>
         </table>
         <button class="btn btn-primary">submit</button>

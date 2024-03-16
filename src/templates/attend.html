@@ -9,24 +9,44 @@ Attend
 <h1>Attend</h1>
 
 <div>
-    <form action="{{url_for('handel_generate_lab_report')}}" , method="post">
+    <form action="{{url_for('handel_attend_patient')}}" , method="post">
         <table class="table">
             <tr>
+                <th>Consult ID</th>
+                <td><input type="text" readonly name="consult_id" value="{{program_data['consult_id']}}"></td>
+            </tr>
+            <tr>
                 <th>Paitent name</th>
-                <td><input type="text" readonly name="name" value="{{program_data['paitent_data']['name']}}"></td>
+                <td><input type="text" readonly name="name" value="{{program_data['paitent_name']}}"></td>
             </tr>
             <tr>
                 <th>Report</th>
-                <td><select name="report">
-                        <option value=""></option>
-                        {% for report_type in program_data["lab_report_types"] %}
-                        <option value="{{report_type['rid']}}">{{report_type["type"]}}</option>
-                        {% endfor %}
-                    </select></td>
+                <td>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Report ID</th>
+                                <th>Report Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lab_report in program_data["lab_reports"] %}
+                            <tr>
+                                <td>{{lab_report.report_id}}</td>
+                                <td>{{lab_report.report_type}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
             </tr>
             <tr>
-                <th>Fee</th>
-                <td><input type="number" name="fee"></td>
+                <th>Message</th>
+                <td><textarea required type="text" name="message" style="width: 100%; height: 200px;"></textarea></td>
+            </tr>
+            <tr>
+                <th>Medicine</th>
+                <td><textarea required type="text" name="medicine" style="width: 100%; height: 100px;"></textarea></td>
             </tr>
         </table>
         <button class="btn btn-primary">submit</button>

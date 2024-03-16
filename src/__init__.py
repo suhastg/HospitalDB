@@ -358,21 +358,51 @@ def Attend_patient(id: int):
 
     connection = get_db_con()
     result = []
+    data["consult_id"] = id
 
     try:
         with connection.cursor() as cursor:
             query = """
-                    SELECT c.consult_id, p.name, p.patient_id, doctor_id
+                    SELECT p.name
                     from `consultation` c, `patient` p
                     where c.consult_id = %s
                     and p.patient_id = c.patient_id
                     """
             cursor.execute(query, (id))
+            result = cursor.fetchone()
+            data["paitent_name"] = result["name"]
+
+            query = """
+                    select report_id, report_type
+                    from lab_report
+                    where consult_id = %s
+                    """
+            cursor.execute(query, (id))
             result = cursor.fetchall()
-            data["paitent_data"] = result[0]
+            data["lab_reports"] = result
+
             print(f"{data=}")
     finally:
         connection.close()
 
 
-    return render_template("generate_lab_report.html", program_data = data)
+    return render_template("attend.html", program_data = data)
+
+@app.route("/handel_attend_patient", methods=["POST"])
+@login_mw
+def handel_attend_patient():
+    connection = get_db_con()
+    form = request.form
+
+    print(f"{form=}")
+    [consult_id, message, medicine] = [form.get("consult_id"), form.get("message"), form.get("medicine")]
+
+    try:
+        with connection.cursor() as cursor:
+            query = """INSERT INTO `patient_report`(`consult_id`, `doctor_msg`, `medicine`) VALUES (%s,%s,%s)"""
+            cursor.execute(query, (consult_id, message, medicine))
+            connection.commit()
+    finally:
+        connection.close()
+
+    return redirect(url_for("index"))
