@@ -44,13 +44,8 @@ create table lab_report
 create table patient_report
 (
     consult_id int not null,
-    patient_id int not null,
-    doctor_id int not null,
-    report_id int not null,
     doctor_msg varchar(20) not null,
     medicine varchar(20) not null,
-     primary key (patient_id, doctor_id, consult_id),
-    foreign key(consult_id) references consultation(consult_id) on delete cascade,
-    foreign key(patient_id) references patient(patient_id) on delete cascade,
-    foreign key(doctor_id)  references doctor(doctor_id) on delete cascade
+     primary key (consult_id),
+    foreign key(consult_id) references consultation(consult_id) on delete cascade
 );
