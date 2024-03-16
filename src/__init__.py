@@ -334,14 +334,12 @@ def handel_generate_lab_report():
     form = request.form
 
     print(f"{form=}")
-    [patient_id, doctor_id, report_type, fee] = [form.get("patient_id"), form.get("doctor_id"), int(form.get("report")), float(form.get("fee"))]
-
-    print(f"{[patient_id, doctor_id, report_type, fee]=}")
+    [consult_id, report_type, fee] = [form.get("consult_id"), int(form.get("report")), float(form.get("fee"))]
 
     try:
         with connection.cursor() as cursor:
-            query = """INSERT INTO `lab_report`(`patient_id`, `doctor_id`, `report_type`, `fee`) VALUES (%s, %s, %s, %s)"""
-            cursor.execute(query, (patient_id, doctor_id, lab_report_types[report_type - 1]['type'], fee))
+            query = """INSERT INTO `lab_report`(`consult_id`, `report_type`, `fee`) VALUES (%s, %s, %s)"""
+            cursor.execute(query, (consult_id, lab_report_types[report_type - 1]['type'], fee))
             connection.commit()
     finally:
         connection.close()
