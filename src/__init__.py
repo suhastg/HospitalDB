@@ -238,8 +238,11 @@ def consultation():
                     WHERE c.doctor_id = %s
                     and c.patient_id = p.patient_id
                     and consult_date>= now() and  c.consult_id not in (
-                        SELECT pr.consult_id from patient_report pr
-                        where pr.doctor_id = %s
+                        SELECT pr.consult_id 
+                        from patient_report pr, 
+                        consultation co
+                        where pr.consult_id = co.consult_id and
+                        co.doctor_id = %s
                     )
                     order by c.consult_date;
                     """
