@@ -269,7 +269,7 @@ def lab_report_route():
         with connection.cursor() as cursor:
             if data["user_type"] == "paitent":
                 query = """
-                            SELECT lr.report_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
+                            SELECT lr.report_id, c.consult_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
                             FROM `lab_report` lr,
                             `consultation` c,
                             `patient` p,
@@ -281,7 +281,7 @@ def lab_report_route():
                         """
             else:
                 query = """
-                            SELECT lr.report_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
+                            SELECT lr.report_id, c.consult_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
                             FROM `lab_report` lr,
                             `consultation` c,
                             `patient` p,
@@ -348,3 +348,31 @@ def handel_generate_lab_report():
         connection.close()
 
     return redirect(url_for("index"))
+
+
+@app.route("/attend/<int:id>")
+@login_mw
+@doctor_only
+def Attend_patient(id: int):
+    data = g.data
+
+    connection = get_db_con()
+    result = []
+
+    try:
+        with connection.cursor() as cursor:
+            query = """
+                    SELECT c.consult_id, p.name, p.patient_id, doctor_id
+                    from `consultation` c, `patient` p
+                    where c.consult_id = %s
+                    and p.patient_id = c.patient_id
+                    """
+            cursor.execute(query, (id))
+            result = cursor.fetchall()
+            data["paitent_data"] = result[0]
+            print(f"{data=}")
+    finally:
+        connection.close()
+
+
+    return render_template("generate_lab_report.html", program_data = data)

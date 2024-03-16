@@ -12,6 +12,7 @@ lab report
     <thead class="thead-dark">
         <tr>
             <th>Report Id</th>
+            <th>Consult ID</th>
             <th>Patient Name</th>
             <th>Doctor Name</th>
             <th>Report Type</th>
@@ -22,6 +23,7 @@ lab report
         {% for lab_report in program_data["lab_reports"] %}
         <tr>
             <td>{{lab_report.report_id}}</td>
+            <td>{{lab_report.consult_id}}</td>
             <td>{{lab_report.p_name}}</td>
             <td>{{lab_report.d_name}}</td>
             <td>{{lab_report.report_type}}</td>
