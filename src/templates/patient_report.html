@@ -1,0 +1,48 @@
+{% extends 'template.html' %}
+
+{% block title %}
+Patient Report
+{% endblock %}
+
+
+{% block content %}
+<h1>Patient Report</h1>
+
+<h3>Consult ID</h3>
+<p>{{program_data["report"][0]["consult_id"]}}</p>
+
+<h3>Paitent Name</h3>
+<p>{{program_data["report"][0]["patient_name"]}}</p>
+
+<h3>Doctor Name</h3>
+<p>{{program_data["report"][0]["doctor_name"]}}</p>
+
+<h3>Message</h3>
+<p>{{program_data["report"][0]["message"]}}</p>
+
+<h3>Medicine</h3>
+<p>{{program_data["report"][0]["medicine"]}}</p>
+
+<h3>Fees</h3>
+<p>{{program_data["report"][0]["fees"]}}</p>
+
+<h3>Lab Reports</h3>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Report ID</th>
+            <th>Report Type</th>
+            <th>Fees</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lr in program_data["report"][0]["reports"] %}
+        <tr>
+            <td>{{lr["report_id"]}}</td>
+            <td>{{lr["report_type"]}}</td>
+            <td>{{lr["fees"]}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

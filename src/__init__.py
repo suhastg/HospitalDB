@@ -267,32 +267,26 @@ def lab_report_route():
 
     try:
         with connection.cursor() as cursor:
-            if data["user_type"] == "paitent":
-                query = """
-                            SELECT lr.report_id, c.consult_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
-                            FROM `lab_report` lr,
-                            `consultation` c,
-                            `patient` p,
-                            `doctor` d
-                            where lr.consult_id = c.consult_id
-                            and c.doctor_id = d.doctor_id
-                            and c.patient_id = p.patient_id
-                            and p.patient_id = %s;
-                        """
+            if data["user_type"] == "patient":
+                f = "p.patient_id = %s"
             else:
-                query = """
-                            SELECT lr.report_id, c.consult_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
-                            FROM `lab_report` lr,
-                            `consultation` c,
-                            `patient` p,
-                            `doctor` d
-                            where lr.consult_id = c.consult_id
-                            and c.doctor_id = d.doctor_id
-                            and c.patient_id = p.patient_id
-                            and d.doctor_id = %s;
-                        """
+                f = "d.doctor_id = %s"
             
-            cursor.execute(query, (g.cookie_data["id"]))
+            
+            query = f"""
+                        SELECT lr.report_id, c.consult_id, p.name as p_name, d.name as d_name, lr.report_type, lr.fee
+                        FROM `lab_report` lr,
+                        `consultation` c,
+                        `patient` p,
+                        `doctor` d
+                        where lr.consult_id = c.consult_id
+                        and c.doctor_id = d.doctor_id
+                        and c.patient_id = p.patient_id
+                        and {f}
+                        and lr.consult_id not in (select consult_id from patient_report);
+                    """
+            
+            cursor.execute(query, (data["id"]))
             result = cursor.fetchall()
             data["lab_reports"] = result
             print(f"{data=}")
@@ -406,3 +400,114 @@ def handel_attend_patient():
         connection.close()
 
     return redirect(url_for("index"))
+
+@app.route("/report")
+@login_mw
+def report():
+    data = g.data
+    connection = get_db_con()
+    data["report"] = []
+
+    try:
+        with connection.cursor() as cursor:
+
+            if data["user_type"] == "doctor":
+                f = "d.doctor_id = %s"
+            else:
+                f = "p.patient_id = %s"
+
+            query = f"""
+            select co.consult_id, p.name as patient_name, d.name as doctor_name, 
+            pr.doctor_msg as message, pr.medicine, co.fees
+            FROM patient_report pr, consultation co, doctor d, patient p
+            where pr.consult_id = co.consult_id AND
+            d.doctor_id = co.doctor_id AND
+            p.patient_id = co.patient_id AND
+            {f};
+            """
+            cursor.execute(query, (data["id"]))
+            patient_report = cursor.fetchall()
+            print(f"{patient_report=}")
+
+            if len(patient_report) == 0:
+                raise ValueError('skip this part.')
+            
+            s = slice(1, -1)
+            cdi = f"{[r["consult_id"] for r in patient_report]}"
+            print(f"{cdi[s]=}")
+
+            query = """select report_id, consult_id, report_type from lab_report where consult_id in (%s)"""
+            cursor.execute(query, (cdi[s]))
+            lab_report = cursor.fetchall()
+            print(f"{lab_report=}")
+
+            data["report"] = [
+                {
+                    "consult_id": pr["consult_id"], 
+                    "patient_name": pr["patient_name"], 
+                    "doctor_name": pr["doctor_name"], 
+                    "message": pr["message"], 
+                    "medicine": pr["medicine"], 
+                    "reports": [{"report_id": lr["report_id"], "report_type": lr["report_type"]} for lr in lab_report if lr["consult_id"] == pr["consult_id"]]
+                } for pr in patient_report]
+    except ValueError:
+        pass
+    finally:
+        connection.close()
+
+    print(f"{data=}")
+
+    return render_template("report.html", program_data = data)
+
+@app.route("/report/<int:id>")
+@login_mw
+def handle_report(id: int):
+    data = g.data
+    connection = get_db_con()
+    data["report"] = []
+
+    try:
+        with connection.cursor() as cursor:
+
+            query = """
+            select co.consult_id, p.name as patient_name, d.name as doctor_name, 
+            pr.doctor_msg as message, pr.medicine, co.fees
+            FROM patient_report pr, consultation co, doctor d, patient p
+            where pr.consult_id = co.consult_id AND
+            d.doctor_id = co.doctor_id AND
+            p.patient_id = co.patient_id AND
+            co.consult_id = %s
+            """
+            cursor.execute(query, (id))
+            patient_report = cursor.fetchall()
+
+            if len(patient_report) == 0:
+                raise ValueError('skip this part.')
+
+            query = """select report_id, consult_id, report_type, fee from lab_report where consult_id = %s"""
+            cursor.execute(query, (id))
+            lab_report = cursor.fetchall()
+
+            data["report"] = [
+                {
+                    "consult_id": pr["consult_id"], 
+                    "patient_name": pr["patient_name"], 
+                    "doctor_name": pr["doctor_name"], 
+                    "message": pr["message"], 
+                    "fees": pr["fees"], 
+                    "medicine": pr["medicine"], 
+                    "reports": [
+                        {
+                            "report_id": lr["report_id"], 
+                            "report_type": lr["report_type"], 
+                            "fees": lr["fee"]
+                        } for lr in lab_report if lr["consult_id"] == pr["consult_id"]]
+                } for pr in patient_report]
+    except ValueError:
+        pass
+    finally:
+        connection.close()
+
+    print(f"{data=}")
+
+    return render_template("patient_report.html", program_data = data)

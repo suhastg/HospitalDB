@@ -13,8 +13,11 @@ lab report
         <tr>
             <th>Report Id</th>
             <th>Consult ID</th>
-            <th>Patient Name</th>
+            {% if program_data["user_type"] == "doctor" %}
+            <th>Paitent Name</th>
+            {% else %}
             <th>Doctor Name</th>
+            {% endif %}
             <th>Report Type</th>
             <th>Fee</th>
         </tr>
@@ -24,8 +27,11 @@ lab report
         <tr>
             <td>{{lab_report.report_id}}</td>
             <td>{{lab_report.consult_id}}</td>
+            {% if program_data["user_type"] == "doctor" %}
             <td>{{lab_report.p_name}}</td>
+            {% else %}
             <td>{{lab_report.d_name}}</td>
+            {% endif %}
             <td>{{lab_report.report_type}}</td>
             <td>{{lab_report.fee}}</td>
         </tr>

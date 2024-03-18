@@ -1,0 +1,54 @@
+{% extends 'template.html' %}
+
+{% block title %}
+Patient Report
+{% endblock %}
+
+
+{% block content %}
+<h1>Patient Report</h1>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Consult ID</th>
+            {% if program_data["user_type"] == "doctor" %}
+            <th>Paitent Name</th>
+            {% else %}
+            <th>Doctor Name</th>
+            {% endif %}
+            <th>Message</th>
+            <th>Medicine</th>
+            <th>Reports</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rep in program_data["report"] %}
+        <tr>
+            <td>
+                <a href="/report/{{rep['consult_id']}}">{{rep["consult_id"]}}</a>
+            </td>
+            {% if program_data["user_type"] == "doctor" %}
+            <td>{{rep["patient_name"]}}</td>
+            {% else %}
+            <td>{{rep["doctor_name"]}}</td>
+            {% endif %}
+            <td>
+                <p>{{rep["message"]}}</p>
+            </td>
+            <td>
+                <p>{{rep["medicine"]}}</p>
+            </td>
+            <td>
+                <ul style="list-style: none; display: flex; gap: .2rem; padding: 0;">
+                    {% for lr in rep["reports"] %}
+                    <li style="border: 1px solid black; padding: .5rem; border-radius: 1rem;">{{lr["report_type"]}}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
