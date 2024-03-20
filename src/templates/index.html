@@ -1,5 +1,42 @@
 {% extends 'template.html' %} {% block title %} index {% endblock %} {% block
 content %}
-<h1>RNS Hospital</h1>
-<img src="static/img/bg.webp" alt="" />
+
+<div class="container">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>RNS Hospital</h1>
+        <img src="static/img/bg.webp" alt="" />
+      </div>
+
+      <div class="col">
+        <h1>Abtract</h1>
+        <p>
+          This Project deals with Hospital Management Database System.This
+          system presents the design and implementation of a comprehensive
+          Hospital Management Database System aimed at streamlining hospital
+          operations, enhancing patient care, and facilitating effective
+          decision-making and encompasses various modules tailored to address
+          key aspects of hospital management, including patient registration,
+          appointment scheduling, medical records management, inventory control,
+          billing and invoicing, staff management, and reporting.This system
+          provides a user-friendly interface accessible to healthcare
+          professionals, administrative staff, and patients
+        </p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h1>ER Diagram and Schema Diagram</h1>
+    <table>
+      <tr>
+        <td>
+          <img style="width: 35rem" src="static/img/ER_Diagram.png" alt="" />
+        </td>
+        <td><img style="width: 35rem" src="static/img/Schema.png" alt="" /></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
 {% endblock %}

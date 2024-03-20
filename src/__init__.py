@@ -433,7 +433,7 @@ def report():
                 raise ValueError('skip this part.')
             
             s = slice(1, -1)
-            cdi = f"{[r["consult_id"] for r in patient_report]}"
+            cdi = f"{[r['consult_id'] for r in patient_report]}"
             print(f"{cdi[s]=}")
 
             query = """select report_id, consult_id, report_type from lab_report where consult_id in (%s)"""
