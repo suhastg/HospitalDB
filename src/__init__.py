@@ -26,7 +26,8 @@ lab_report_types = [
     {"rid": 1, "type": "Blood Test"},
     {"rid": 2, "type": "Eye Test"},
     {"rid": 3, "type": "Ear Test"},
-    {"rid": 4, "type": "Urine Test"}
+    {"rid": 4, "type": "Urine Test"},
+    {"rid": 5, "type": "X Ray"}
 ]
 
 
@@ -38,7 +39,6 @@ def wrong_turn_mate(request):
 @app.route("/")
 def index():
     data = get_base_data(request)
-    cookie = get_cookie(request)
 
     return render_template("index.html", program_data = data)
 
@@ -188,6 +188,7 @@ def consult_handle():
     
     try:
         with connection.cursor() as cursor:
+            # checking availability of doctor and patent on given date and time
             query="""
                 select count(*) as availability
                 where not EXISTS (
@@ -232,6 +233,7 @@ def consultation():
 
     try:
         with connection.cursor() as cursor:
+            # selecting consultation records that are in the future and still yet to be attended
             query = """
                     SELECT c.consult_id, p.name, c.consult_date, c.fees
                     FROM consultation c, patient p
